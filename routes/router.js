@@ -1,7 +1,11 @@
 const router = require('express').Router();
 const users = require('./users');
 const articles = require('./articles');
-// USE .ALL - POST/GET SHOULD BE INSIDE
+const signin = require('./signin');
+const signup = require('./signup');
+
+router.all('/signin*', signin);
+router.all('/signup*', signup);
 router.all('/users*', users);
 router.all('/articles*', articles);
 

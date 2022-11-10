@@ -1,5 +1,6 @@
 const { isEmail } = require('validator');
 const mongoose = require('mongoose');
+const bycript = require('bcryptjs');
 
 const userSchema = mongoose.Schema({
   email: {
@@ -27,4 +28,24 @@ const userSchema = mongoose.Schema({
   },
 });
 
+userSchema.statics.findUserByCredentials = function findUserByCredentials(
+  email,
+  password,
+) {
+  return this.findOne({ email })
+    .select('password')
+    .then((user) => {
+      if (!user) {
+        // user not found:  not given the real reason to user for security purpose
+        throw new Error('The username or password is incorrect');
+      }
+
+      return bycript.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          throw new Error('The   username or password is incorrect');
+        }
+        return user;
+      });
+    });
+};
 module.exports = mongoose.model('user', userSchema);

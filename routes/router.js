@@ -5,4 +5,7 @@ const articles = require('./articles');
 router.all('/users*', users);
 router.all('/articles*', articles);
 
+router.all('*', (req, res, next) => {
+  res.send('page not found');
+});
 module.exports = router;

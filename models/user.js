@@ -42,7 +42,7 @@ userSchema.statics.findUserByCredentials = function findUserByCredentials(
 
       return bycript.compare(password, user.password).then((matched) => {
         if (!matched) {
-          throw new Error('The   username or password is incorrect');
+          throw new Error('The username or password is incorrect');
         }
         return user;
       });

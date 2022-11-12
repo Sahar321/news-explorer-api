@@ -4,7 +4,8 @@ const bycript = require('bcryptjs');
 const User = require('../models/user');
 const defaultJwtSecret = require("../constant/constant");
 const { JWT_SECRET = defaultJwtSecret } = process.env;
-
+const ConflictError  = require('../middleware/errors/ConflictError')
+const NotFoundError  = require('../middleware/errors/NotFoundError')
 const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
@@ -27,7 +28,7 @@ const registerNewUser = (req, res, next) => {
           res.send({ _id: user._id, email: user.email });
         })
         .catch((err) => {
-          next( new Error("email is already exist"));
+          next( new ConflictError("email is already exist"));
         });
     })
     .catch((err) => {
@@ -38,7 +39,7 @@ const registerNewUser = (req, res, next) => {
 const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
-      throw new Error('User not exist');
+      throw new NotFoundError('User not exist');
     })
     .then((user) => {
       res.send(user);

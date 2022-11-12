@@ -8,6 +8,7 @@ const router = require('./routes/router');
 
 const app = express();
 const { PORT = 3000 } = process.env;
+const { requestLogger, errorLogger } = require('./middleware/logger');
 
 const handleMainError = (err, req, res, next) => {
   let { statusCode = 500 } = err;
@@ -27,7 +28,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(helmet());
 app.use(errors());
+app.use(requestLogger);
 app.use(router);
+app.use(errorLogger);
 app.use(handleMainError);
 
 mongoose.connect('mongodb://localhost:27017/newsExplorer');

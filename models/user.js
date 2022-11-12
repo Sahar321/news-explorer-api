@@ -8,9 +8,9 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    validates: {
+    validate: {
       validator: (email) => isEmail(email),
-      message: 'Invalid email',
+      message: (props) => `${props.value} is not a valid email`,
     },
     lowercase: true,
     trim: true,

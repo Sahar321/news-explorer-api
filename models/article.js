@@ -25,17 +25,17 @@ const articleSchema = mongoose.Schema({
   link: {
     type: String,
     required: true,
-    validates: {
+    validate: {
       validator: (url) => isURL(url),
-      message: 'Invalid URL',
+      message: (props) => `${props.value} is not a valid link`,
     },
   },
   image: {
     type: String,
     required: true,
-    validates: {
+    validate: {
       validator: (url) => isURL(url),
-      message: 'Invalid URL',
+      message: (props) => `${props.value} is not a valid image link`,
     },
   },
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },

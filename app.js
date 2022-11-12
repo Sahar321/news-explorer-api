@@ -23,14 +23,15 @@ const handleMainError = (err, req, res, next) => {
     message: statusCode === 500 ? 'An error occurred on the server' : message,
   });
 };
-
+app.use(requestLogger);
+app.use(errorLogger);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(helmet());
 app.use(errors());
-app.use(requestLogger);
+
 app.use(router);
-app.use(errorLogger);
+
 app.use(handleMainError);
 
 mongoose.connect('mongodb://localhost:27017/newsExplorer');

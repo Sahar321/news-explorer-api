@@ -8,7 +8,7 @@ const authorized = require('../middleware/auth');
 router.all('/signin*', signin);
 router.all('/signup*', signup);
 router.all('/users*', authorized, users);
-router.all('/articles*', articles);
+router.all('/articles*', authorized, articles);
 
 router.all('*', (req, res, next) => {
   res.send('page not found');

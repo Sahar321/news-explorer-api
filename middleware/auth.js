@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('./errors/UnauthorizedError');
 const InValidRequestError = require('./errors/InValidRequestError');
-const defaultJwtSecret = require('../constant/constant');
+const developmentJwtSecret = require('../constant/constant');
 
 const authorized = (req, res, next) => {
-  const { JWT_SECRET = defaultJwtSecret } = process.env;
+  // if JWT_SECRET not exist, use the default dev key - for development only!
+  const { JWT_SECRET = developmentJwtSecret } = process.env;
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer ')) {
     throw new UnauthorizedError();

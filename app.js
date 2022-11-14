@@ -1,14 +1,16 @@
 require('dotenv').config();
+// 3rd party
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { errors, isCelebrateError } = require('celebrate');
 const rateLimit = require('express-rate-limit');
+const cors = require('cors');
+// app
+const router = require('./routes/router');
 const TooManyRequestsError = require('./middleware/errors/TooManyRequestsError');
 const { requestLogger, errorLogger } = require('./middleware/logger');
-const cors = require('cors');
-const router = require('./routes/router');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -36,6 +38,7 @@ const handleMainError = (err, req, res, next) => {
     message: statusCode === 500 ? 'An error occurred on the server' : message,
   });
 };
+// 3rd party
 app.use(requestLogger);
 app.use(errorLogger);
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -46,10 +49,11 @@ app.options('*', cors());
 app.use(limiter);
 app.use(errors());
 
+// app
 app.use(router);
-
 app.use(handleMainError);
 
+// database
 mongoose.connect('mongodb://localhost:27017/newsExplorer');
 
 app.listen(PORT);

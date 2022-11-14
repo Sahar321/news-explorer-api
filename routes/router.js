@@ -10,6 +10,12 @@ router.all('/signup*', signup);
 router.all('/users*', authorized, users);
 router.all('/articles*', authorized, articles);
 
+router.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Server will crash now');
+  }, 0);
+});
+
 router.all('*', (req, res, next) => {
   res.send('page not found');
 });

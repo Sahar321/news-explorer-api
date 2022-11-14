@@ -26,7 +26,7 @@ const registerNewUser = (req, res, next) => {
     .then((hashed) => {
       User.create({ email, password: hashed, name })
         .then((user) => {
-          res.send({ _id: user._id, email: user.email });
+          res.status(201).send({ _id: user._id, email: user.email });
         })
         .catch(() => {
           next(new ConflictError('email is already exist'));

@@ -36,7 +36,7 @@ const createNewArticle = (req, res, next) => {
   })
     .then((createdArticle) => {
       Article.findOne(createdArticle._id) // omit the owner filed
-        .then((article) => res.send(article))
+        .then((article) => res.status(201).send(article))
         .catch((err) => next(err));
     })
     .catch((err) => next(err));

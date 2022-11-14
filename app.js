@@ -7,11 +7,13 @@ const { errors, isCelebrateError } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 const TooManyRequestsError = require('./middleware/errors/TooManyRequestsError');
 const { requestLogger, errorLogger } = require('./middleware/logger');
+const cors = require('cors');
 const router = require('./routes/router');
 
 const app = express();
 const { PORT = 3000 } = process.env;
-const limiter = rateLimit({ // max 100 request per 10 minutes
+const limiter = rateLimit({
+  // max 100 request per 10 minutes
   windowMs: 10 * 60 * 1000,
   max: 100,
   standardHeaders: true,
@@ -39,6 +41,8 @@ app.use(errorLogger);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(helmet());
+app.use(cors());
+app.options('*', cors());
 app.use(limiter);
 app.use(errors());
 
@@ -47,4 +51,5 @@ app.use(router);
 app.use(handleMainError);
 
 mongoose.connect('mongodb://localhost:27017/newsExplorer');
+
 app.listen(PORT);

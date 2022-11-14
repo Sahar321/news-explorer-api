@@ -38,7 +38,12 @@ const articleSchema = mongoose.Schema({
       message: (props) => `${props.value} is not a valid image link`,
     },
   },
-  owner: { type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
+    required: true,
+    select: false,
+  },
 });
 
 module.exports = mongoose.model('article', articleSchema);

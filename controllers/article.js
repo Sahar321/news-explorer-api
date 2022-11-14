@@ -34,7 +34,11 @@ const createNewArticle = (req, res, next) => {
     image,
     owner,
   })
-    .then((article) => res.send(article))
+    .then((createdArticle) => {
+      Article.findOne(createdArticle._id) // omit the owner filed
+        .then((article) => res.send(article))
+        .catch((err) => next(err));
+    })
     .catch((err) => next(err));
 };
 const deleteArticleById = (req, res, next) => {
@@ -43,13 +47,17 @@ const deleteArticleById = (req, res, next) => {
     owner: ObjectId(req.user._id),
   })
     .orFail(() => {
-      throw new ForbiddenError('You do not have permissions to delete this Article');
+      throw new ForbiddenError(
+        'You do not have permissions to delete this Article'
+      );
     })
     .then((article) => {
       res.send(article);
     })
     .catch(() => {
-      next(new ForbiddenError('You do not have permissions to delete this Article'));
+      next(
+        new ForbiddenError('You do not have permissions to delete this Article')
+      );
     });
 };
 

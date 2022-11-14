@@ -4,11 +4,22 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { errors, isCelebrateError } = require('celebrate');
+const rateLimit = require('express-rate-limit');
+const TooManyRequestsError = require('./middleware/errors/TooManyRequestsError');
+const { requestLogger, errorLogger } = require('./middleware/logger');
 const router = require('./routes/router');
 
 const app = express();
 const { PORT = 3000 } = process.env;
-const { requestLogger, errorLogger } = require('./middleware/logger');
+const limiter = rateLimit({ // max 100 request per 10 minutes
+  windowMs: 10 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: () => {
+    throw new TooManyRequestsError();
+  },
+});
 
 const handleMainError = (err, req, res, next) => {
   let { statusCode = 500 } = err;
@@ -28,6 +39,7 @@ app.use(errorLogger);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(helmet());
+app.use(limiter);
 app.use(errors());
 
 app.use(router);

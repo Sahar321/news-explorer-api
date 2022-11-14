@@ -5,5 +5,4 @@ prctiom.txt
 .vscode
 .vscode/settings.json
 *.log
-.prettierrc.json
 .env

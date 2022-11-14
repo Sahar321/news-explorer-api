@@ -47,17 +47,13 @@ const deleteArticleById = (req, res, next) => {
     owner: ObjectId(req.user._id),
   })
     .orFail(() => {
-      throw new ForbiddenError(
-        'You do not have permissions to delete this Article'
-      );
+      throw new ForbiddenError('You do not have permissions to delete this Article');
     })
     .then((article) => {
       res.send(article);
     })
     .catch(() => {
-      next(
-        new ForbiddenError('You do not have permissions to delete this Article')
-      );
+      next(new ForbiddenError('You do not have permissions to delete this Article'));
     });
 };
 

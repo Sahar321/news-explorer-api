@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('./errors/UnauthorizedError');
 const InValidRequestError = require('./errors/InValidRequestError');
-const developmentJwtSecret = require('../constant/constant');
+const { developmentJwtSecret } = require('../constant/constant');
 
 const authorized = (req, res, next) => {
   // if JWT_SECRET not exist, use the default dev key - for development only!

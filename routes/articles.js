@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { article } = require('../constant/validationSchema');
+const { article } = require('../middleware/validationSchema');
 const {
   getAllArticles,
   createNewArticle,

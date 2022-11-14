@@ -5,25 +5,17 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { errors, isCelebrateError } = require('celebrate');
-const rateLimit = require('express-rate-limit');
 const cors = require('cors');
+const { limiter } = require('./constant/constant');
 // app
 const router = require('./routes/router');
-const TooManyRequestsError = require('./middleware/errors/TooManyRequestsError');
+
 const { requestLogger, errorLogger } = require('./middleware/logger');
 
 const app = express();
 const { PORT = 3000 } = process.env;
-const limiter = rateLimit({
-  // max 100 request per 10 minutes
-  windowMs: 10 * 60 * 1000,
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: () => {
-    throw new TooManyRequestsError();
-  },
-});
+// if .env not exist(=development mode) use default database address.
+const { DATABASE_ADDRESS = 'mongodb://localhost:27017/newsExplorer' } = process.env;
 
 const handleMainError = (err, req, res, next) => {
   let { statusCode = 500 } = err;
@@ -54,6 +46,6 @@ app.use(router);
 app.use(handleMainError);
 
 // database
-mongoose.connect('mongodb://localhost:27017/newsExplorer');
+mongoose.connect(DATABASE_ADDRESS);
 
 app.listen(PORT);

@@ -1,11 +1,12 @@
-/* eslint-disable */
 const jwt = require('jsonwebtoken');
 const bycript = require('bcryptjs');
 const User = require('../models/user');
-const defaultJwtSecret = require("../constant/constant");
+const defaultJwtSecret = require('../constant/constant');
+const ConflictError = require('../middleware/errors/ConflictError');
+const NotFoundError = require('../middleware/errors/NotFoundError');
+
 const { JWT_SECRET = defaultJwtSecret } = process.env;
-const ConflictError  = require('../middleware/errors/ConflictError')
-const NotFoundError  = require('../middleware/errors/NotFoundError')
+
 const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
@@ -18,23 +19,23 @@ const login = (req, res, next) => {
     .catch((err) => next(err));
 };
 const registerNewUser = (req, res, next) => {
-  const { email, password, name} = req.body;
+  const { email, password, name } = req.body;
 
   bycript
     .hash(password, 10)
     .then((hashed) => {
-      User.create({email, password: hashed, name})
+      User.create({ email, password: hashed, name })
         .then((user) => {
           res.send({ _id: user._id, email: user.email });
         })
-        .catch((err) => {
-          next( new ConflictError("email is already exist"));
+        .catch(() => {
+          next(new ConflictError('email is already exist'));
         });
     })
     .catch((err) => {
       next(err);
     });
-  };
+};
 
 const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
@@ -46,7 +47,6 @@ const getUserInfo = (req, res, next) => {
     })
     .catch((err) => next(err));
 };
-
 
 module.exports = {
   registerNewUser,

@@ -1,8 +1,6 @@
-/*  eslint no-underscore-dangle: ['error', { 'allow': ['_id'] }] */
-const { ObjectId } = require('mongodb');
 const Article = require('../models/article');
-const NotFoundError = require('../middleware/errors/NotFoundError');
-const ForbiddenError = require('../middleware/errors/ForbiddenError');
+const NotFoundError = require('../constant/errors/NotFoundError');
+const ForbiddenError = require('../constant/errors/ForbiddenError');
 
 const getSavedArticles = (req, res, next) => {
   Article.find({ owner: req.user._id })

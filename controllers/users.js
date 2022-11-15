@@ -2,8 +2,8 @@ const jwt = require('jsonwebtoken');
 const bycript = require('bcryptjs');
 const User = require('../models/user');
 const defaultJwtSecret = require('../constant/constant');
-const ConflictError = require('../middleware/errors/ConflictError');
-const NotFoundError = require('../middleware/errors/NotFoundError');
+const ConflictError = require('../constant/errors/ConflictError');
+const NotFoundError = require('../constant/errors/NotFoundError');
 
 const { JWT_SECRET = defaultJwtSecret } = process.env;
 

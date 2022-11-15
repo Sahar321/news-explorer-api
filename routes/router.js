@@ -16,7 +16,7 @@ router.get('/crash-test', () => {
   }, 0);
 });
 
-router.all('*', (req, res, next) => {
+router.all('*', authorized, (req, res, next) => {
   res.send('page not found');
 });
 module.exports = router;

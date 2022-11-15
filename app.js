@@ -7,7 +7,7 @@ const helmet = require('helmet');
 const { errors } = require('celebrate');
 const cors = require('cors');
 const { limiter } = require('./constant/constant');
-const handleMainError = require('./constant/errors/handleMainError');
+const handleMainError = require('./middleware/handleMainError');
 const { developmentDatabaseAddress } = require('./constant/config');
 // app
 const router = require('./routes/router');

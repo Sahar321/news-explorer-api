@@ -4,8 +4,8 @@ const Article = require('../models/article');
 const NotFoundError = require('../middleware/errors/NotFoundError');
 const ForbiddenError = require('../middleware/errors/ForbiddenError');
 
-const getAllArticles = (req, res, next) => {
-  Article.find({})
+const getSavedArticles = (req, res, next) => {
+  Article.find({ owner: req.user._id })
     .orFail(() => {
       throw new NotFoundError('Not found Articles');
     })
@@ -18,9 +18,7 @@ const getAllArticles = (req, res, next) => {
 };
 
 const createNewArticle = (req, res, next) => {
-  const {
-    keyword, title, text, date, source, link, image,
-  } = req.body;
+  const { keyword, title, text, date, source, link, image } = req.body;
 
   const owner = req.user._id;
 
@@ -47,18 +45,20 @@ const deleteArticleById = (req, res, next) => {
     owner: ObjectId(req.user._id),
   })
     .orFail(() => {
-      throw new ForbiddenError('You do not have permissions to delete this Article');
+      throw new ForbiddenError(
+        'You do not have permissions to delete this Article'
+      );
     })
     .then((article) => {
       res.send(article);
     })
-    .catch(() => {
-      next(new ForbiddenError('You do not have permissions to delete this Article'));
+    .catch((err) => {
+      next(err);
     });
 };
 
 module.exports = {
-  getAllArticles,
+  getSavedArticles,
   createNewArticle,
   deleteArticleById,
 };

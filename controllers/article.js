@@ -39,18 +39,20 @@ const createNewArticle = (req, res, next) => {
     })
     .catch((err) => next(err));
 };
+
 const deleteArticleById = (req, res, next) => {
-  Article.findOneAndRemove({
-    _id: ObjectId(req.params.articleId),
-    owner: ObjectId(req.user._id),
-  })
+  Article.findById(req.params.articleId)
     .orFail(() => {
-      throw new ForbiddenError(
-        'You do not have permissions to delete this Article'
-      );
+      throw new NotFoundError('Article not found with that id.');
     })
     .then((article) => {
-      res.send(article);
+      if (article.owner.toString() === req.user._id) {
+        article.remove(() => res.send(article));
+      } else {
+        throw new ForbiddenError(
+          'You do not have permissions to delete this Article'
+        );
+      }
     })
     .catch((err) => {
       next(err);

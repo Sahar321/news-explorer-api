@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('./errors/UnauthorizedError');
-const InValidRequestError = require('./errors/InValidRequestError');
 const { developmentJwtSecret } = require('../constant/constant');
 
 const authorized = (req, res, next) => {
@@ -19,7 +18,7 @@ const authorized = (req, res, next) => {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
     // otherwise, return an error
-    throw new InValidRequestError('invalid token');
+    throw new UnauthorizedError('invalid token');
   }
 
   /* Save payload to request. This makes the payload available

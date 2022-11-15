@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
 const bycript = require('bcryptjs');
 const User = require('../models/user');
-const defaultJwtSecret = require('../constant/constant');
+const { developmentJwtSecret } = require('../constant/config');
 const ConflictError = require('../constant/errors/ConflictError');
 const NotFoundError = require('../constant/errors/NotFoundError');
 
-const { JWT_SECRET = defaultJwtSecret } = process.env;
+const { JWT_SECRET = developmentJwtSecret } = process.env;
 
 const login = (req, res, next) => {
   const { email, password } = req.body;

@@ -30,19 +30,17 @@ const handleMainError = (err, req, res, next) => {
     message: statusCode === 500 ? 'An error occurred on the server' : message,
   });
 };
-// 3rd party
+
 app.use(requestLogger);
-app.use(errorLogger);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(helmet());
 app.use(cors());
 app.options('*', cors());
 app.use(limiter);
-app.use(errors());
-
-// app
 app.use(router);
+app.use(errorLogger);
+app.use(errors());
 app.use(handleMainError);
 
 // database

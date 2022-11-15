@@ -8,7 +8,7 @@ const { errors } = require('celebrate');
 const cors = require('cors');
 const { limiter } = require('./constant/constant');
 const handleMainError = require('./constant/errors/handleMainError');
-const { developmentDatabaseAddress } = require('./constant/config')
+const { developmentDatabaseAddress } = require('./constant/config');
 // app
 const router = require('./routes/router');
 

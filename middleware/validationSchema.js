@@ -32,6 +32,14 @@ const ValidationSchema = {
       name: Joi.string().required().min(2).max(30),
     }),
   }),
+  validateNews: celebrate({
+    query: Joi.object().keys({
+      q: Joi.string().trim().required(),
+      pageSize: Joi.number().greater(0).less(101),
+      from: Joi.date(),
+      to: Joi.date(),
+    }).unknown(true),
+  }),
 };
 
 module.exports = ValidationSchema;

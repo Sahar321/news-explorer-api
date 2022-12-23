@@ -4,11 +4,13 @@ const articles = require('./articles');
 const signin = require('./signin');
 const signup = require('./signup');
 const authorized = require('../middleware/auth');
+const news = require('./news');
 
 router.all('/signin*', signin);
 router.all('/signup*', signup);
 router.all('/users*', authorized, users);
 router.all('/articles*', authorized, articles);
+router.all('/news*', news);
 
 router.get('/crash-test', () => {
   setTimeout(() => {

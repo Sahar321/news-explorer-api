@@ -15,7 +15,7 @@ const router = require('./routes/router');
 const { requestLogger, errorLogger } = require('./middleware/logger');
 
 const app = express();
-const { PORT = 3000 } = process.env;
+const { PORT = 3001 } = process.env;
 // if .env not exist(=development mode) use default database address.
 const { DATABASE_ADDRESS = developmentDatabaseAddress } = process.env;
 

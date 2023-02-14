@@ -1,11 +1,33 @@
 const jwt = require('jsonwebtoken');
 const bycript = require('bcryptjs');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/user');
 const { developmentJwtSecret } = require('../constant/config');
 const ConflictError = require('../constant/errors/ConflictError');
 const NotFoundError = require('../constant/errors/NotFoundError');
 
 const { JWT_SECRET = developmentJwtSecret } = process.env;
+
+async function verify(req) {
+  const client = new OAuth2Client(req.body.clientId);
+  const ticket = await client.verifyIdToken({
+    idToken: req.body.credential,
+    audience: req.body.clientId,
+  });
+  const payload = ticket.getPayload();
+  return payload;
+}
+async function loginWithGoogle(req, res, next) {
+  const data = await verify(req);
+  User.emailAuth0(data.email)
+    .then((user) => {
+      const jwtToken = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: '7d',
+      });
+      return res.send({ token: jwtToken });
+    })
+    .catch((err) => next(err));
+}
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
@@ -20,7 +42,6 @@ const login = (req, res, next) => {
 };
 const registerNewUser = (req, res, next) => {
   const { email, password, name } = req.body;
-
   bycript
     .hash(password, 10)
     .then((hashed) => {
@@ -51,5 +72,6 @@ const getUserInfo = (req, res, next) => {
 module.exports = {
   registerNewUser,
   login,
+  loginWithGoogle,
   getUserInfo,
 };

@@ -11,7 +11,7 @@ const ValidationSchema = {
         source: Joi.string().required(),
         link: Joi.string().required().uri(),
         image: Joi.string().required().uri(),
-      }),
+      }).unknown(true),
     }),
     articleId: celebrate({
       params: Joi.object().keys({
@@ -23,6 +23,10 @@ const ValidationSchema = {
     body: Joi.object().keys({
       email: Joi.string().required().email(),
       password: Joi.string().required(),
+    }),
+  }),
+  signinWithGoogle: celebrate({
+    body: Joi.object().keys({
     }),
   }),
   signup: celebrate({

@@ -2,7 +2,7 @@ const fetch = require('cross-fetch');
 
 const fetchNewsArticles = (req, res, next) => {
   const { q, pageSize } = req.query;
-  const apiKey = 'c03fb549f9c1431b9166d7004ef0d5c3'; //todo: process.env.NEWS_API_KEY;
+  const apiKey = '5dac586067ad4ee7b2797a379e910521'; //todo: process.env.NEWS_API_KEY;
   const baseUrl = 'https://newsapi.org/v2/everything';
 
   fetch(

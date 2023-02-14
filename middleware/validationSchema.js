@@ -40,8 +40,6 @@ const ValidationSchema = {
     query: Joi.object().keys({
       q: Joi.string().trim().required(),
       pageSize: Joi.number().greater(0).less(101),
-      from: Joi.date(),
-      to: Joi.date(),
     }).unknown(true),
   }),
 };

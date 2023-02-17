@@ -52,4 +52,4 @@ The News Explorer API is deployed on a server and can be accessed using the foll
 ## Conclusion
 Thank you for exploring News Explorer! I'm open to suggestions, critiques, or contributions to improve this project. If you have any questions or feedback, don't hesitate to contact me directly or open an issue on this repository.
 
-##### *News Explorer uses NewsAPI as its primary source of news data.
+##### *News Explorer uses [**NewsApi**](https://newsapi.org) as its primary source of news data.

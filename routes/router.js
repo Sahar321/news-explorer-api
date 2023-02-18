@@ -17,7 +17,6 @@ router.get('/crash-test', () => {
     throw new Error('Server will crash now');
   }, 0);
 });
-//t
 router.all('*', authorized, (req, res, next) => {
   res.send('page not found');
 });

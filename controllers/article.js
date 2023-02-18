@@ -16,9 +16,7 @@ const getSavedArticles = (req, res, next) => {
 };
 
 const createNewArticle = (req, res, next) => {
-  const {
-    keyword, title, text, date, source, link, image,
-  } = req.body;
+  const { keyword, title, text, date, source, link, image } = req.body;
 
   const owner = req.user._id;
 
@@ -49,7 +47,9 @@ const deleteArticleById = (req, res, next) => {
       if (article.owner.toString() === req.user._id) {
         article.remove(() => res.send(article));
       } else {
-        throw new ForbiddenError('You do not have permissions to delete this Article');
+        throw new ForbiddenError(
+          'You do not have permissions to delete this Article'
+        );
       }
     })
     .catch((err) => {

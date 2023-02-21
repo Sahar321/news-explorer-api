@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
 
 const reactionSchema = mongoose.Schema({
-  reaction: {
+  reactionId: {
     type: String,
     enum: ['Love', 'Care', 'funny', 'Wow', 'Sad', 'Angry'],
     required: true,
   },
   date: {
     type: String,
+  },
+  link: {
+    type: String,
+    required: true,
   },
   articleId: {
     type: mongoose.Schema.Types.ObjectId,

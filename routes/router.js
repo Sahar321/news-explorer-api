@@ -6,13 +6,15 @@ const signup = require('./signup');
 const reaction = require('./reaction');
 const authorized = require('../middleware/auth');
 const news = require('./news');
+const comment = require('./comment');
 
 router.all('/signin*', signin);
 router.all('/signup*', signup);
 router.all('/reaction*', authorized, reaction);
 router.all('/users*', authorized, users);
 router.all('/articles*', authorized, articles);
-router.all('/news*', news);
+router.all('/news*', authorized, news);
+router.all('/comment*', comment);
 
 router.get('/crash-test', () => {
   setTimeout(() => {

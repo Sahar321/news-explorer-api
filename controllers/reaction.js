@@ -2,14 +2,12 @@
 const Reaction = require('../models/reaction');
 const ConflictError = require('../constant/errors/ConflictError');
 const addArticleReaction = (req, res, next) => {
-  const { reactionId, date, articleId } = req.body;
+  const { reactionId, date, link } = req.body;
   const owner = req.user._id;
-  const link = articleId;
-
   Reaction.findOneAndUpdate(
     { owner, link },
-    { reactionId, date, link },
-    { upsert: true }
+    { reactionId,  link },
+    { new: true,upsert: true }
   )
     .then((db) => {
       res.send(db);

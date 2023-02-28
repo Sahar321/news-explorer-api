@@ -1,6 +1,19 @@
+/* eslint-disable*/
 const Article = require('../models/article');
 const NotFoundError = require('../constant/errors/NotFoundError');
 const ForbiddenError = require('../constant/errors/ForbiddenError');
+
+const getAllArticlesDate = (req, res, next) => {
+  Article.findByLink()
+    .then((articles) => {
+      const article = articles[0];
+      res.json(article);
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    });
+};
 
 const getSavedArticles = (req, res, next) => {
   Article.find({ owner: req.user._id })
@@ -16,9 +29,7 @@ const getSavedArticles = (req, res, next) => {
 };
 
 const createNewArticle = (req, res, next) => {
-  const {
-    keyword, title, text, date, source, link, image,
-  } = req.body;
+  const { keyword, title, text, date, source, link, image } = req.body;
 
   const owner = req.user._id;
 
@@ -49,7 +60,9 @@ const deleteArticleById = (req, res, next) => {
       if (article.owner.toString() === req.user._id) {
         article.remove(() => res.send(article));
       } else {
-        throw new ForbiddenError('You do not have permissions to delete this Article');
+        throw new ForbiddenError(
+          'You do not have permissions to delete this Article'
+        );
       }
     })
     .catch((err) => {
@@ -61,4 +74,42 @@ module.exports = {
   getSavedArticles,
   createNewArticle,
   deleteArticleById,
+  getAllArticlesDate,
 };
+
+
+
+/* const combinedDocuments = (req, res, next) => {
+  Article.find({ link: req.body.link })
+    .orFail(() => {
+      throw new NotFoundError('Not found Articles');
+    })
+    .then((Articles) => {
+      res.send(Articles);
+    })
+    .catch((err) => {
+      next(err);
+    });
+
+    Comment.find({ link: req.body.link })
+    .orFail(() => {
+      throw new NotFoundError('Not found Comment');
+    })
+    .then((Articles) => {
+      res.send(Articles);
+    })
+    .catch((err) => {
+      next(err);
+    });
+
+    Reaction.find({ link: req.body.link })
+    .orFail(() => {
+      throw new NotFoundError('Not found Reaction');
+    })
+    .then((Articles) => {
+      res.send(Articles);
+    })
+    .catch((err) => {
+      next(err);
+    });
+}; */

@@ -29,10 +29,10 @@ const fetchNewsArticles = async (req, res, next) => {
     const newArray = data.articles.map((article) => {
       const reaction = reactions.filter((item) => item.link === article.url);
       const comment = comments.filter((item) => item.link === article.url);
-      //const isBookmarked = articles.filter((item) => item.link === article.url);
+      const isBookmarked = articles.some((item) => item.link === article.url);
       const newArticle = {
         keyword: q,
-        owner: null,
+        isBookmarked: isBookmarked,
         comments: [],
         reaction: [],
         title: article.title,

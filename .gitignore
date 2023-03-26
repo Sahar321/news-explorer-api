@@ -5,5 +5,7 @@ prctiom.txt
 .vscode
 .vscode/settings.json
 *.log
+logs
+
 .env
 TODO.txt

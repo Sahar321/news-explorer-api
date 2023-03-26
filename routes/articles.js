@@ -4,11 +4,13 @@ const {
   getSavedArticles,
   createNewArticle,
   deleteArticleById,
-  getAllArticlesDate,
+  getAllArticleReaction,
+  getAllArticleComments,
 } = require('../controllers/article');
 
 router.get('/articles', getSavedArticles);
-router.post('/articles/data', getAllArticlesDate);
+router.get('/articles/:articleId/comments', getAllArticleComments);
+router.get('/articles/:articleId/reactions', getAllArticleReaction);
 router.post('/articles', article.createNewArticle, createNewArticle);
 router.delete('/articles/:articleId', article.articleId, deleteArticleById);
 

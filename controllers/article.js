@@ -2,7 +2,59 @@
 const Article = require('../models/article');
 const NotFoundError = require('../constant/errors/NotFoundError');
 const ForbiddenError = require('../constant/errors/ForbiddenError');
+const commen = require('../models/comment');
+const reaction = require('../models/reaction');
+const user = require('../models/user');
+const { Buffer } = require('buffer');
+const getAllArticleComments = (req, res, next) => {
+  const articleId = Buffer.from(req.params.articleId, 'base64').toString(
+    'utf8'
+  );
+  commen
+    .find({
+      link: articleId,
+    })
+    .then((comments) => {
+      userIds = comments.map((comment) => comment.owner);
+      user.find({ _id: { $in: userIds } }).then((users) => {
+        const formattedComments = comments.map((comment) => {
+          const { link, owner, reactionId,text } = comment;
+          const user = users.find(
+            (user) => user._id.toString() === owner.toString()
+          );
+          const { _id, name, email } = user;
+          return { _id, link, owner, reactionId, name, email,text };
+        });
+        res.status(201).send(formattedComments);
+      });
+    })
+    .catch((err) => next(err));
+};
 
+const getAllArticleReaction = (req, res, next) => {
+  const articleId = Buffer.from(req.params.articleId, 'base64').toString(
+    'utf8'
+  );
+  reaction
+    .find({
+      link: articleId,
+    })
+    .then((comments) => {
+      userIds = comments.map((comment) => comment.owner);
+      user.find({ _id: { $in: userIds } }).then((users) => {
+        const formattedComments = comments.map((comment) => {
+          const { link, owner, reactionId,text } = comment;
+          const user = users.find(
+            (user) => user._id.toString() === owner.toString()
+          );
+          const { _id, name, email } = user;
+          return { _id, link, owner, reactionId, name, email,text };
+        });
+        res.status(201).send(formattedComments);
+      });
+    })
+    .catch((err) => next(err));
+};
 const getAllArticlesDate = (req, res, next) => {
   Article.findByLink()
     .then((articles) => {
@@ -75,9 +127,9 @@ module.exports = {
   createNewArticle,
   deleteArticleById,
   getAllArticlesDate,
+  getAllArticleComments,
+  getAllArticleReaction,
 };
-
-
 
 /* const combinedDocuments = (req, res, next) => {
   Article.find({ link: req.body.link })

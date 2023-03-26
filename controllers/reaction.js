@@ -3,14 +3,17 @@ const Reaction = require('../models/reaction');
 const ConflictError = require('../constant/errors/ConflictError');
 const addArticleReaction = (req, res, next) => {
   const { reactionId, date, link } = req.body;
-  const owner = req.user._id;
+  const ownerId = req.user._id;
   Reaction.findOneAndUpdate(
-    { owner, link },
-    { reactionId,  link },
-    { new: true,upsert: true }
+    { owner: ownerId, link },
+    { reactionId, link },
+    { new: true, upsert: true }
   )
     .then((db) => {
-      res.send(db);
+      console.log(db);
+      const { link, owner, reactionId } = db;
+      const isOwner = ownerId === owner.toString();
+      res.send({ link, isOwner, reactionId });
     })
     .catch((err) => next(err));
 };

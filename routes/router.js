@@ -14,7 +14,7 @@ router.all('/reaction*', authorized, reaction);
 router.all('/users*', authorized, users);
 router.all('/articles*', authorized, articles);
 router.all('/news*', authorized, news);
-router.all('/comment*', comment);
+router.all('/comment*', authorized, comment);
 
 router.get('/crash-test', () => {
   setTimeout(() => {

@@ -14,16 +14,17 @@ const getAllArticleComments = (req, res, next) => {
     .find({
       link: articleId,
     })
+    .lean()
     .then((comments) => {
       userIds = comments.map((comment) => comment.owner);
       user.find({ _id: { $in: userIds } }).then((users) => {
         const formattedComments = comments.map((comment) => {
-          const { link, owner, reactionId,text } = comment;
+          const { link, owner, text, date, rating } = comment;
           const user = users.find(
             (user) => user._id.toString() === owner.toString()
           );
-          const { _id, name, email } = user;
-          return { _id, link, owner, reactionId, name, email,text };
+          const { name:username, avatar } = user;
+          return { link,  username, text, date, rating, avatar };
         });
         res.status(201).send(formattedComments);
       });
@@ -43,12 +44,12 @@ const getAllArticleReaction = (req, res, next) => {
       userIds = comments.map((comment) => comment.owner);
       user.find({ _id: { $in: userIds } }).then((users) => {
         const formattedComments = comments.map((comment) => {
-          const { link, owner, reactionId,text } = comment;
+          const { link, owner, reactionId, text } = comment;
           const user = users.find(
             (user) => user._id.toString() === owner.toString()
           );
           const { _id, name, email } = user;
-          return { _id, link, owner, reactionId, name, email,text };
+          return { _id, link, owner, reactionId, name, email, text };
         });
         res.status(201).send(formattedComments);
       });

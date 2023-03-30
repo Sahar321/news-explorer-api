@@ -19,12 +19,12 @@ const getAllArticleComments = (req, res, next) => {
       userIds = comments.map((comment) => comment.owner);
       user.find({ _id: { $in: userIds } }).then((users) => {
         const formattedComments = comments.map((comment) => {
-          const { link, owner, text, date, rating } = comment;
+          const { _id: commentId, link, owner, text, date, rating } = comment;
           const user = users.find(
             (user) => user._id.toString() === owner.toString()
           );
-          const { name:username, avatar } = user;
-          return { link,  username, text, date, rating, avatar };
+          const { name: username, avatar } = user;
+          return { id: commentId, link, username, text, date, rating, avatar };
         });
         res.status(201).send(formattedComments);
       });

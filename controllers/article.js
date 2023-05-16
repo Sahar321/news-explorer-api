@@ -3,6 +3,7 @@ const Article = require('../models/article');
 const NotFoundError = require('../constant/errors/NotFoundError');
 const ForbiddenError = require('../constant/errors/ForbiddenError');
 const commen = require('../models/comment');
+const ThankYou = require('../models/thankYou');
 const reaction = require('../models/reaction');
 const user = require('../models/user');
 const { Buffer } = require('buffer');
@@ -24,38 +25,57 @@ const getAllArticleComments = (req, res, next) => {
             (user) => user._id.toString() === owner.toString()
           );
           const { name: username, avatar } = user;
-          return { id: commentId, link, username, text, date, rating, avatar };
+          return { id: commentId, link, username, text, date, rating, avatar, owner };
         });
         res.status(201).send(formattedComments);
       });
     })
     .catch((err) => next(err));
+};
+const getAllArticleReaction = async (req, res, next) => {
+  try {
+    const articleId = Buffer.from(req.params.articleId, 'base64').toString(
+      'utf8'
+    );
+    const reactions = await reaction.find({ link: articleId });
+    const userIds = reactions.map((reaction) => reaction.owner);
+    const users = await user.find({ _id: { $in: userIds } });
+    const formattedReactions = await Promise.all(
+      reactions.map(async (reaction) => {
+        const { link, owner, reactionId, text } = reaction;
+        const currentUser = users.find(
+          (user) => user._id.toString() === owner.toString()
+        );
+        if (!currentUser) {
+          throw new Error(`User not found for reaction owner ${owner}`);
+        }
+        const totalComments = await commen.countDocuments({
+          owner: reaction.owner,
+        });
+        const totalThankYou = await ThankYou.countDocuments({
+          toOwner: reaction.owner,
+        });
+        const { _id, name, email, avatar } = currentUser;
+        return {
+          _id,
+          link,
+          owner,
+          reactionId,
+          name,
+          email,
+          text,
+          avatar,
+          totalComments,
+          totalThankYou,
+        };
+      })
+    );
+    res.status(201).send(formattedReactions);
+  } catch (err) {
+    next(err);
+  }
 };
 
-const getAllArticleReaction = (req, res, next) => {
-  const articleId = Buffer.from(req.params.articleId, 'base64').toString(
-    'utf8'
-  );
-  reaction
-    .find({
-      link: articleId,
-    })
-    .then((comments) => {
-      userIds = comments.map((comment) => comment.owner);
-      user.find({ _id: { $in: userIds } }).then((users) => {
-        const formattedComments = comments.map((comment) => {
-          const { link, owner, reactionId, text } = comment;
-          const user = users.find(
-            (user) => user._id.toString() === owner.toString()
-          );
-          const { _id, name, email } = user;
-          return { _id, link, owner, reactionId, name, email, text };
-        });
-        res.status(201).send(formattedComments);
-      });
-    })
-    .catch((err) => next(err));
-};
 const getAllArticlesDate = (req, res, next) => {
   Article.findByLink()
     .then((articles) => {

@@ -26,6 +26,12 @@ const userSchema = mongoose.Schema({
     minLength: 2,
     maxLength: 30,
   },
+  avatar: {
+    type: String,
+    required: false,
+    minLength: 2,
+    maxLength: 300,
+  },
 });
 
 userSchema.statics.findUserByCredentials = function findUserByCredentials(

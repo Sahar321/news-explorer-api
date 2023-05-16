@@ -1,3 +1,4 @@
+/*eslint-disable*/
 const jwt = require('jsonwebtoken');
 const bycript = require('bcryptjs');
 const { OAuth2Client } = require('google-auth-library');
@@ -58,6 +59,24 @@ const registerNewUser = (req, res, next) => {
     });
 };
 
+const updateAvatar = (req, res, next) => {
+  const { link } = req.body;
+  User.findOneAndUpdate({ _id: req.user._id }, { avatar: link }, { new: true })
+    .orFail(() => {
+      throw new NotFoundError('User not exist');
+    })
+    .then((user) => {
+      const { _id, email, name, avatar } = user;
+      res.send({
+        _id,
+        email,
+        name,
+        avatar,
+      });
+    })
+    .catch((err) => next(err));
+};
+
 const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
@@ -74,4 +93,5 @@ module.exports = {
   login,
   loginWithGoogle,
   getUserInfo,
+  updateAvatar,
 };

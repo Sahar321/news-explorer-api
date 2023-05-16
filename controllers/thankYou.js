@@ -3,10 +3,9 @@ const ThankYou = require('../models/thankYou');
 const ConflictError = require('../constant/errors/ConflictError');
 
 const thankYou = (req, res, next) => {
-  const { username, id } = req.body;
+  const { toOwner, id } = req.body;
   const ownerId = req.user._id;
-
-  ThankYou.findOne({ fromOwner: ownerId, toOwner: username, commentId: id })
+  ThankYou.findOne({ fromOwner: ownerId, toOwner, commentId: id })
     .then((existingThankYou) => {
       if (existingThankYou) {
         ThankYou.deleteOne({ _id: existingThankYou._id })
@@ -17,7 +16,7 @@ const thankYou = (req, res, next) => {
       } else {
         const newThankYou = new ThankYou({
           fromOwner: ownerId,
-          toOwner: username,
+          toOwner,
           commentId: id,
         });
         newThankYou

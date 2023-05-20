@@ -4,7 +4,7 @@ const articles = require('./articles');
 const signin = require('./signin');
 const signup = require('./signup');
 const reaction = require('./reaction');
-const authorized = require('../middleware/auth');
+const { authorized, allUsers } = require('../middleware/auth');
 const news = require('./news');
 const comment = require('./comment');
 const profile = require('./profile');
@@ -14,7 +14,7 @@ router.all('/signup*', signup);
 router.all('/reaction*', authorized, reaction);
 router.all('/users*', authorized, users);
 router.all('/articles*', authorized, articles);
-router.all('/news*', authorized, news);
+router.all('/news*', allUsers, news);
 router.all('/comment*', authorized, comment);
 router.all('/profile*', authorized, profile);
 

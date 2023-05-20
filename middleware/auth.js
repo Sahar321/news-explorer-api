@@ -33,7 +33,7 @@ const authorized = (req, res, next) => {
 // this middleware is for both authorized and unauthorized users
 // it will not throw an error if the user is not authorized
 // and save the payload to req.user if the user is authorized
-const all = (req, res, next) => {
+const allUsers = (req, res, next) => {
   // if JWT_SECRET not exist, use the default dev key - for development only!
   const { JWT_SECRET = developmentJwtSecret } = process.env;
   const { authorization } = req.headers;
@@ -60,4 +60,4 @@ const all = (req, res, next) => {
   // sending the request to the next middleware
   next();
 };
-module.exports = { authorized, all };
+module.exports = { authorized, allUsers };

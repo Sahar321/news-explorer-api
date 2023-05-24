@@ -39,6 +39,7 @@ const allUsers = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer ')) {
     next();
+    return;
   }
 
   const token = authorization.replace('Bearer ', '');

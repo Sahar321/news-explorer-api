@@ -26,11 +26,28 @@ const combineNewsSources = async (req, res, next) => {
   try {
     const { q } = req.query;
     const newsData = await fetchNews(q);
-    const ownerId = req.user._id || null;
+    const ownerId = req.user?._id || null;
+    const newItem = newsData.articles.map((article) => {
+      const newArticle = {
+        keyword: q,
+        isBookmarked: false,
+        comments: [],
+        reaction: [],
+        title: article.title,
+        text: article.content,
+        date: article.publishedAt,
+        source: article.source.name,
+        link: article.url,
+        image: article.urlToImage,
+        description: article.description,
+      };
+
+      return newArticle;
+    });
     if (!ownerId) {
       res.send({
-        articles: newsData.articles,
-        status: newsData.status,
+        articles: newItem,
+        status: 'ok',
         totalResults: newsData.totalResults,
       });
       return;
@@ -78,7 +95,11 @@ const combineNewsSources = async (req, res, next) => {
 
       return newArticle;
     });
-
+    const az = {
+      articles: newArray,
+      status: 'ok',
+      totalResults: newsData.totalResults,
+    };
     res.send({
       articles: newArray,
       status: 'ok',

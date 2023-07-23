@@ -3,7 +3,7 @@ const fetch = require('cross-fetch');
 const Article = require('../models/article');
 const Comment = require('../models/comment');
 const Reaction = require('../models/reaction');
-
+const moment = require('moment');
 const fetchNews = async (q) => {
   try {
     const pageSize = 100;
@@ -22,6 +22,7 @@ const fetchNews = async (q) => {
   } catch (err) {}
 };
 
+
 const combineNewsSources = async (req, res, next) => {
   try {
     const { q } = req.query;
@@ -35,7 +36,7 @@ const combineNewsSources = async (req, res, next) => {
         reaction: [],
         title: article.title,
         text: article.content,
-        date: article.publishedAt,
+        date: moment(article.publishedAt).format('HH:mm D/M/YY'),
         source: article.source.name,
         link: article.url,
         image: article.urlToImage,

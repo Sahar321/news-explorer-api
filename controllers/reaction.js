@@ -1,6 +1,16 @@
 /*eslint-disable*/
 const Reaction = require('../models/reaction');
 const ConflictError = require('../constant/errors/ConflictError');
+const removeReaction = (req, res, next) => {
+  const ownerId = req.user._id;
+  const { link } = req.body;
+  Reaction.findOneAndDelete({ owner: ownerId, link })
+    .then(async (db) => {
+      const rx = await getReactionsByArticleId(link, ownerId);
+      res.send(rx);
+    })
+}
+
 const addArticleReaction = (req, res, next) => {
   const { reactionId, date, link } = req.body;
   const ownerId = req.user._id;
@@ -9,13 +19,35 @@ const addArticleReaction = (req, res, next) => {
     { reactionId, link },
     { new: true, upsert: true }
   )
-    .then((db) => {
+    .then(async (db) => {
       console.log(db);
       const { link, owner, reactionId } = db;
       const isOwner = ownerId === owner.toString();
-      res.send({ link, isOwner, reactionId });
+      const rx = await getReactionsByArticleId(link, ownerId);
+      console.log(rx);
+      res.send(rx);
     })
     .catch((err) => next(err));
+};
+const getReactionsByArticleId = async (id, ownerId) => {
+  try {
+    const result = [];
+    const arr = await Reaction.find({
+      link: id,
+    }).lean();
+
+    arr.forEach((item) => {
+      result.push({
+        reactionId: item.reactionId,
+        link: item.link,
+        isOwner: item.owner.toString() === ownerId,
+      });
+    });
+
+    return result;
+  } catch (error) {
+    return { error: error + 'getReactionsByArticleId' };
+  }
 };
 
 /*   Reaction.findOne({ owner, link })
@@ -42,4 +74,5 @@ const addArticleReaction = (req, res, next) => {
 
 module.exports = {
   addArticleReaction,
+  removeReaction,
 };

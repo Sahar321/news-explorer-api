@@ -25,7 +25,16 @@ const getAllArticleComments = (req, res, next) => {
             (user) => user._id.toString() === owner.toString()
           );
           const { name: username, avatar } = user;
-          return { id: commentId, link, username, text, date, rating, avatar, owner };
+          return {
+            id: commentId,
+            link,
+            username,
+            text,
+            date,
+            rating,
+            avatar,
+            owner,
+          };
         });
         res.status(201).send(formattedComments);
       });
@@ -102,14 +111,14 @@ const getSavedArticles = (req, res, next) => {
 };
 
 const createNewArticle = (req, res, next) => {
-  const { keyword, title, text, date, source, link, image } = req.body;
+  const { keyword, title, date, description, source, link, image } = req.body;
 
   const owner = req.user._id;
 
   Article.create({
     keyword,
     title,
-    text,
+    description,
     date,
     source,
     link,

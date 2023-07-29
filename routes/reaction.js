@@ -1,6 +1,10 @@
 const router = require('express').Router();
-const { addArticleReaction } = require('../controllers/reaction');
+const {
+  addArticleReaction,
+  removeReaction,
+} = require('../controllers/reaction');
 
 // todo: addArticleReaction validation
 router.post('/reaction', addArticleReaction);
+router.delete('/reaction', removeReaction);
 module.exports = router;

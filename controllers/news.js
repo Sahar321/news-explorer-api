@@ -5,7 +5,7 @@ const Comment = require('../models/comment');
 const Reaction = require('../models/reaction');
 const moment = require('moment');
 function removeHtmlTagsWithRegex(input) {
-  return input.replace(/<\/?[^>]+(>|$)/g, " ");
+  return input.replace(/<\/?[^>]+(>|$)/g, ' ');
 }
 const fetchNews = async (q) => {
   try {
@@ -29,9 +29,8 @@ const combineNewsSources = async (req, res, next) => {
   try {
     const { q } = req.query;
     const newsData = await fetchNews(q);
-    const ownerId = req.user._id || null;
+    const ownerId = req.user?._id
     const newItem = newsData.articles.map((article) => {
-
       const newArticle = {
         keyword: q,
         isBookmarked: false,

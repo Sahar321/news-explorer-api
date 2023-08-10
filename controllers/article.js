@@ -8,9 +8,7 @@ const reaction = require('../models/reaction');
 const user = require('../models/user');
 const { Buffer } = require('buffer');
 const getAllArticleComments = (req, res, next) => {
-  const articleId = Buffer.from(req.params.articleId, 'base64').toString(
-    'utf8'
-  );
+  const articleId = req.body.link;
   commen
     .find({
       link: articleId,

@@ -2,6 +2,9 @@
 const NotFoundError = require('../constant/errors/NotFoundError');
 const ForbiddenError = require('../constant/errors/ForbiddenError');
 const Comment = require('../models/comment');
+const Article = require('../models/article');
+const Users = require('../models/user');
+const {getAllArticleComments} = require('../controllers/article');
 const saveComment = (req, res, next) => {
   const { link, text } = req.body;
 
@@ -13,20 +16,10 @@ const saveComment = (req, res, next) => {
     link,
   })
     .then((savedComment) => {
-      const { _id, date, link, owner, rating, text } = savedComment;
-      const comment = {
-        id: _id,
-        date,
-        link,
-        owner,
-        rating,
-        text,
-      };
-      res.status(201).send(comment);
+      getAllArticleComments(req, res, next);
     })
     .catch((err) => next(err));
 };
-
 
 module.exports = {
   saveComment,

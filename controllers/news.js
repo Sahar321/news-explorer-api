@@ -1,8 +1,11 @@
 /* eslint-disable*/
 const fetch = require('cross-fetch');
 const Article = require('../models/article');
+const mongoose = require('mongoose');
 const Comment = require('../models/comment');
 const Reaction = require('../models/reaction');
+const user = require('../models/user');
+const fs = require('fs');
 const moment = require('moment');
 function removeHtmlTagsWithRegex(input) {
   return input.replace(/<\/?[^>]+(>|$)/g, ' ');
@@ -25,12 +28,57 @@ const fetchNews = async (q) => {
   } catch (err) {}
 };
 
+const enrichSourceArticles = (enrichedArticles, sourceArticle, keyword) => {
+  const enrichedMap = new Map(enrichedArticles.map((ea) => [ea.link, ea]));
+
+  const processSourceArticle = (article) => ({
+    title: article.title,
+    date: moment(article.publishedAt).format('HH:mm D/M/YY'),
+    source: article.source.name,
+    keyword: keyword,
+    link: article.url,
+    image: article.urlToImage,
+    text: removeHtmlTagsWithRegex(article.description),
+  });
+
+  return sourceArticle.map((article) => {
+    const enrichedArticle = enrichedMap.get(article.url);
+    if (enrichedArticle) {
+      return enrichedArticle;
+    }
+
+    return processSourceArticle(article);
+  });
+};
+
 const combineNewsSources = async (req, res, next) => {
   try {
     const { q } = req.query;
+    // messure time:
+
     const newsData = await fetchNews(q);
-    const ownerId = req.user?._id
-    const newItem = newsData.articles.map((article) => {
+
+    const links = newsData.articles.map((article) => article.url);
+    const ownerId = req.user?._id;
+    const ownerIdAsObjectId = mongoose.Types.ObjectId(ownerId);
+    const test = await Article.getArticleMetrics(links, ownerIdAsObjectId);
+
+    const tes = enrichSourceArticles(test, newsData.articles, q);
+
+    res.send({
+      articles: tes,
+      status: 'ok',
+      totalResults: newsData.totalResults,
+    });
+
+    /*     if (!ownerId) {
+      res.send({
+        articles: tes,
+        status: 'ok',
+        totalResults: newsData.totalResults,
+      });
+    } */
+    /*     const newItem = newsData.articles.map((article) => {
       const newArticle = {
         keyword: q,
         isBookmarked: false,
@@ -45,20 +93,13 @@ const combineNewsSources = async (req, res, next) => {
       };
       return newArticle;
     });
-    if (!ownerId) {
-      res.send({
-        articles: newItem,
-        status: 'ok',
-        totalResults: newsData.totalResults,
-      });
-      return;
-    }
+
 
     const articles = await Article.find({});
     const comments = await Comment.find({});
     const reactions = await Reaction.find({});
 
-    const newArray = newsData.articles.map((article) => {
+    const newArray = newsData.articles.map(async (article) => {
       const reaction = reactions.filter((item) => item.link === article.url);
       const comment = comments.filter((item) => item.link === article.url);
       const isBookmarked = articles.some((item) => item.link === article.url);
@@ -86,25 +127,23 @@ const combineNewsSources = async (req, res, next) => {
 
       if (comment.length > 0) {
         newArticle.comments = comment.map(
-          ({ text, date, link, rating, owner }) => {
+          async ({ text, date, link, rating, owner }) => {
+            const { name, avatar } = await user.findById(owner);
             const isOwner = ownerId === owner.toString();
-            return { text, date, link, rating, owner: isOwner };
+            return { name, avatar, text, date, link, rating, owner: isOwner };
           }
         );
       }
 
       return newArticle;
     });
-    const az = {
-      articles: newArray,
-      status: 'ok',
-      totalResults: newsData.totalResults,
-    };
+    const result = await newArray;
+    console.log(result);
     res.send({
-      articles: newArray,
+      articles: result,
       status: 'ok',
       totalResults: newsData.totalResults,
-    });
+    }); */
   } catch (err) {
     next(err);
   }

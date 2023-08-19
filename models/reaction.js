@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 const reactionSchema = mongoose.Schema(
   {
-    reactionId: {
+    type: {
       type: String,
-      enum: ['Love', 'Care', 'funny', 'Wow', 'Sad', 'Angry'],
+      enum: ['LOL', 'WOW', 'LIKE', 'SAD', 'LOVE'],
       required: true,
     },
     date: {
@@ -21,12 +21,7 @@ const reactionSchema = mongoose.Schema(
       required: true,
     },
   },
-/*   {
-    // make owner and linkId a compound unique index
-    unique: true,
-    index: true,
-    sparse: true,
-  }, */
+
 );
 
 module.exports = mongoose.model('reaction', reactionSchema);

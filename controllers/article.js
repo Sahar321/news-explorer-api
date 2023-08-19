@@ -22,15 +22,14 @@ const getAllArticleComments = (req, res, next) => {
           const user = users.find(
             (user) => user._id.toString() === owner.toString()
           );
-          const { name: username, avatar } = user;
+
           return {
             id: commentId,
             link,
-            username,
             text,
             date,
             rating,
-            avatar,
+            user: { avatar: user.avatar, name: user.name },
             owner,
           };
         });
@@ -49,7 +48,7 @@ const getAllArticleReaction = async (req, res, next) => {
     const users = await user.find({ _id: { $in: userIds } });
     const formattedReactions = await Promise.all(
       reactions.map(async (reaction) => {
-        const { link, owner, reactionId, text } = reaction;
+        const { link, owner, type, text } = reaction;
         const currentUser = users.find(
           (user) => user._id.toString() === owner.toString()
         );
@@ -67,7 +66,7 @@ const getAllArticleReaction = async (req, res, next) => {
           _id,
           link,
           owner,
-          reactionId,
+          type,
           name,
           email,
           text,
@@ -109,14 +108,14 @@ const getSavedArticles = (req, res, next) => {
 };
 
 const createNewArticle = (req, res, next) => {
-  const { keyword, title, date, description, source, link, image } = req.body;
+  const { keyword, title, date, text, source, link, image } = req.body;
 
   const owner = req.user._id;
 
   Article.create({
     keyword,
     title,
-    description,
+    text,
     date,
     source,
     link,

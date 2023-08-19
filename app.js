@@ -34,4 +34,18 @@ app.use(handleMainError);
 // database
 mongoose.connect(DATABASE_ADDRESS);
 
+const generateFakeData = require('./testing/generateFakeData');
+
+const zax = async () => {
+  let test;
+
+  try {
+    test = await generateFakeData();
+  } catch (error) {
+    console.log(error);
+  }
+  return test;
+};
+ //zax();
+
 app.listen(PORT);

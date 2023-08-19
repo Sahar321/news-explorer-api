@@ -12,19 +12,19 @@ const removeReaction = (req, res, next) => {
 }
 
 const addArticleReaction = (req, res, next) => {
-  const { reactionId, date, link } = req.body;
+  const { type, date, link } = req.body;
   const ownerId = req.user._id;
   Reaction.findOneAndUpdate(
     { owner: ownerId, link },
-    { reactionId, link },
+    { type, link },
     { new: true, upsert: true }
   )
     .then(async (db) => {
-      console.log(db);
-      const { link, owner, reactionId } = db;
+  /*     console.log(db); */
+      const { link, owner, type } = db;
       const isOwner = ownerId === owner.toString();
       const rx = await getReactionsByArticleId(link, ownerId);
-      console.log(rx);
+/*       console.log(rx); */
       res.send(rx);
     })
     .catch((err) => next(err));
@@ -38,7 +38,7 @@ const getReactionsByArticleId = async (id, ownerId) => {
 
     arr.forEach((item) => {
       result.push({
-        reactionId: item.reactionId,
+        type: item.type,
         link: item.link,
         isOwner: item.owner.toString() === ownerId,
       });

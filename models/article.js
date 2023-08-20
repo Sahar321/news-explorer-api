@@ -47,7 +47,7 @@ const articleSchema = mongoose.Schema({
   },
 });
 
-articleSchema.statics.getArticleMetrics = async function getArticleMetrics(links) {
+articleSchema.statics.getArticleMetrics = async function getArticleMetrics(links, ownerId) {
   return await this.aggregate([
     // Stage 1: Match articles
     {
@@ -62,7 +62,7 @@ articleSchema.statics.getArticleMetrics = async function getArticleMetrics(links
         from: 'comments',
         localField: 'link',
         foreignField: 'link',
-        as: 'comments',
+        as: 'commentsArray',  // <-- modified here
       },
     },
     {
@@ -70,8 +70,26 @@ articleSchema.statics.getArticleMetrics = async function getArticleMetrics(links
         from: 'reactions',
         localField: 'link',
         foreignField: 'link',
-        as: 'reactions',
+        as: 'reactionsArray',  // <-- modified here
       },
+    },
+
+    // Filter reactions to find the one that matches both link and ownerId
+    {
+      $addFields: {
+        matchedReaction: {
+          $filter: {
+            input: '$reactionsArray',  // <-- modified here
+            as: 'reaction',
+            cond: {
+              $and: [
+                { $eq: [ownerId, '$$reaction.owner'] },
+                { $eq: ['$link', '$$reaction.link'] }
+              ]
+            }
+          }
+        }
+      }
     },
 
     // Stage 3: Count the number of comments and group reactions by type
@@ -85,33 +103,40 @@ articleSchema.statics.getArticleMetrics = async function getArticleMetrics(links
         source: '$source',
         link: '$link',
         image: '$image',
-        commentsLength: { $size: '$comments' },
-        reactionsCountByType: {
-          $arrayToObject: {
-            $map: {
-              input: { $setUnion: ["$reactions.type"] },
-              as: "rType",
-              in: {
-                k: "$$rType",
-                v: {
-                  $size: {
-                    $filter: {
-                      input: "$reactions",
-                      as: "r",
-                      cond: { $eq: ["$$r.type", "$$rType"] }
+        comments: {
+          count: { $size: '$commentsArray' }  // <-- modified here
+        },
+        reactions: {
+          countByType: {
+            $arrayToObject: {
+              $map: {
+                input: { $setUnion: ["$reactionsArray.type"] },  // <-- modified here
+                as: "rType",
+                in: {
+                  k: "$$rType",
+                  v: {
+                    $size: {
+                      $filter: {
+                        input: "$reactionsArray",  // <-- modified here
+                        as: "r",
+                        cond: { $eq: ["$$r.type", "$$rType"] }
+                      }
                     }
                   }
                 }
               }
             }
-          }
+          },
+          ownerReactionType: { $arrayElemAt: ['$matchedReaction.type', 0] }
         }
       },
     },
+
   ]);
 };
 
-articleSchema.statics.findAllArticleDataByLink = async function findAllArticleDataByLink(
+
+/* articleSchema.statics.findAllArticleDataByLink = async function findAllArticleDataByLink(
   linkId,
   ownerId
 ) {
@@ -248,7 +273,7 @@ articleSchema.statics.findAllArticleDataByLink = async function findAllArticleDa
       },
     },
   ]);
-};
+}; */
 
 /* articleSchema.statics.findALL = async function findALL() {
   try {

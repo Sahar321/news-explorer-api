@@ -1,78 +1,47 @@
-/*eslint-disable*/
+/* eslint-disable*/
 const Reaction = require('../models/reaction');
-const ConflictError = require('../constant/errors/ConflictError');
-const removeReaction = (req, res, next) => {
-  const ownerId = req.user._id;
-  const { link } = req.body;
-  Reaction.findOneAndDelete({ owner: ownerId, link })
-    .then(async (db) => {
-      const rx = await getReactionsByArticleId(link, ownerId);
-      res.send(rx);
-    })
+
+async function sendReactionSummary(req, res, next, link, ownerId) {
+  try {
+    const articleReactionSummary = await Reaction.getArticleReactionSummary(
+      link,
+      ownerId
+    );
+    res.status(200).send(articleReactionSummary);
+  } catch (error) {
+    next(error);
+  }
 }
 
-const addArticleReaction = (req, res, next) => {
-  const { type, date, link } = req.body;
+const removeReaction = async (req, res, next) => {
   const ownerId = req.user._id;
-  Reaction.findOneAndUpdate(
-    { owner: ownerId, link },
-    { type, link },
-    { new: true, upsert: true }
-  )
-    .then(async (db) => {
-  /*     console.log(db); */
-      const { link, owner, type } = db;
-      const isOwner = ownerId === owner.toString();
-      const rx = await getReactionsByArticleId(link, ownerId);
-/*       console.log(rx); */
-      res.send(rx);
-    })
-    .catch((err) => next(err));
-};
-const getReactionsByArticleId = async (id, ownerId) => {
+  const { link } = req.body;
+
   try {
-    const result = [];
-    const arr = await Reaction.find({
-      link: id,
-    }).lean();
-
-    arr.forEach((item) => {
-      result.push({
-        type: item.type,
-        link: item.link,
-        isOwner: item.owner.toString() === ownerId,
-      });
-    });
-
-    return result;
-  } catch (error) {
-    return { error: error + 'getReactionsByArticleId' };
+    await Reaction.findOneAndDelete({ owner: ownerId, link });
+    sendReactionSummary(req, res, next, link, ownerId);
+  } catch (err) {
+    next(err);
   }
 };
 
-/*   Reaction.findOne({ owner, link })
-    .then((db) => {
-      if (db) {
-        Reaction.deleteOne({ owner, link })
-          .then(() => {
-            Reaction.create({
-              reactionId,
-              date,
-              articleId,
-              owner,
-            })
-              .then((db) => {
-                res.send({ db });
-              })
-              .catch((err) => next(err));
-          })
-          .catch((err) => next(err));
-      }
-    })
-    .catch((err) => next(err));
-}; */
+const addReactionToArticle = async (req, res, next) => {
+  const { type, link } = req.body;
+  const ownerId = req.user._id;
+
+  try {
+    await Reaction.findOneAndUpdate(
+      { owner: ownerId, link },
+      { type, link },
+      { new: true, upsert: true }
+    );
+    sendReactionSummary(req, res, next, link, ownerId);
+  } catch (err) {
+    next(err);
+  }
+};
 
 module.exports = {
-  addArticleReaction,
+  addReactionToArticle,
   removeReaction,
 };

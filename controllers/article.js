@@ -8,7 +8,9 @@ const reaction = require('../models/reaction');
 const user = require('../models/user');
 const { Buffer } = require('buffer');
 const getAllArticleComments = (req, res, next) => {
-  const articleId = req.body.link;
+  const articleId =
+    req.body.link ||
+    Buffer.from(req.params.articleId, 'base64').toString('utf8');
   commen
     .find({
       link: articleId,
@@ -24,13 +26,13 @@ const getAllArticleComments = (req, res, next) => {
           );
 
           return {
-            id: commentId,
-            link,
+            id: commentId.toString(),
             text,
             date,
             rating,
             user: { avatar: user.avatar, name: user.name },
-            owner,
+            owner: owner.toString(),
+            isOwner: req.user._id.toString() === owner.toString(),
           };
         });
         res.status(201).send(formattedComments);

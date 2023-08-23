@@ -59,19 +59,39 @@ const registerNewUser = (req, res, next) => {
     });
 };
 
-const updateAvatar = (req, res, next) => {
-  const { link } = req.body;
-  User.findOneAndUpdate({ _id: req.user._id }, { avatar: link }, { new: true })
+const updateProfile = (req, res, next) => {
+  const { avatar, name, username, phone, motto, city, address, country } =
+    req.body;
+  User.findOneAndUpdate(
+    { _id: req.user._id },
+    { avatar, name, username, phone, motto, city, address, country },
+    { new: true }
+  )
     .orFail(() => {
       throw new NotFoundError('User not exist');
     })
     .then((user) => {
-      const { _id, email, name, avatar } = user;
+      const {
+        _id,
+        avatar,
+        name,
+        username,
+        phone,
+        motto,
+        city,
+        address,
+        country,
+      } = user;
       res.send({
         _id,
-        email,
-        name,
         avatar,
+        name,
+        username,
+        phone,
+        motto,
+        city,
+        address,
+        country,
       });
     })
     .catch((err) => next(err));
@@ -93,5 +113,5 @@ module.exports = {
   login,
   loginWithGoogle,
   getUserInfo,
-  updateAvatar,
+  updateProfile,
 };

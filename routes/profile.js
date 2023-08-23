@@ -1,5 +1,6 @@
 const router = require('express').Router();
-const { updateAvatar } = require('../controllers/users');
+const { updateProfile } = require('../controllers/users');
+const { profile } = require('../middleware/validationSchema');
 
-router.post('/profile/avatar', updateAvatar);
+router.post('/profile', profile, updateProfile);
 module.exports = router;

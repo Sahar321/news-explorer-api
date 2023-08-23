@@ -42,6 +42,19 @@ const ValidationSchema = {
       pageSize: Joi.number().greater(0).less(101),
     }).unknown(true),
   }),
+  profile: celebrate({
+    body: Joi.object().keys({
+      name: Joi.string().required().min(2).max(30),
+      avatar: Joi.string().uri(),
+      username: Joi.string().min(2).max(30),
+      phone: Joi.string().min(5).max(15),
+      motto: Joi.string().min(2).max(30),
+      city: Joi.string().min(2).max(30),
+      address: Joi.string().min(2).max(30),
+      country: Joi.string().min(2).max(30),
+
+    }),
+  }),
 };
 
 module.exports = ValidationSchema;

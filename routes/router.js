@@ -8,7 +8,9 @@ const { authorized, allUsers } = require('../middleware/auth');
 const news = require('./news');
 const comment = require('./comment');
 const profile = require('./profile');
+const privacyPolicy = require('./privacyPolicy');
 
+router.all('/privacy-policy', privacyPolicy);
 router.all('/signin*', signin);
 router.all('/signup*', signup);
 router.all('/reaction*', authorized, reaction);

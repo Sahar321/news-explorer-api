@@ -1,0 +1,7 @@
+This project serves as my culminating assignment for my full-stack studies. It's strictly a demonstration of my capabilities and is not intended for commercial or advertising purposes. It's likely to be decommissioned soon.
+
+For users logging in through platforms like Google and Facebook:
+
+Only your email address is stored on our server to establish a user profile.
+No other personal details are retained or used beyond website functionality.
+To remove your email from our server, please reach out to Saharm123456@gmail.com.

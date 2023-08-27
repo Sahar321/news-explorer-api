@@ -6,7 +6,7 @@ const User = require('../models/user');
 const { developmentJwtSecret } = require('../constant/config');
 const ConflictError = require('../constant/errors/ConflictError');
 const NotFoundError = require('../constant/errors/NotFoundError');
-
+const axios = require('axios');
 const { JWT_SECRET = developmentJwtSecret } = process.env;
 
 async function verify(req) {
@@ -108,10 +108,38 @@ const getUserInfo = (req, res, next) => {
     .catch((err) => next(err));
 };
 
+async function loginWithFacebook(req, res, next) {
+  const userAccessToken = req.body.accessToken;
+
+  if (!userAccessToken) {
+    next(new Error('Invalid facebook token'));
+  }
+
+  const fbGraphAPIUrl = `https://graph.facebook.com/v17.0/me?fields=id,name,email,picture.width(320).height(320)&access_token=${userAccessToken}`;
+
+  try {
+    const { data } = await axios.get(fbGraphAPIUrl);
+    if (!data || data.error) {
+      throw new Error('Invalid token');
+    }
+    User.emailAuth0(data.email)
+      .then((user) => {
+        const jwtToken = jwt.sign({ _id: user._id }, JWT_SECRET, {
+          expiresIn: '7d',
+        });
+        return res.send({ token: jwtToken });
+      })
+      .catch((err) => next(err));
+  } catch (error) {
+    next('Error fetching facebook user info');
+  }
+}
+
 module.exports = {
   registerNewUser,
   login,
   loginWithGoogle,
   getUserInfo,
   updateProfile,
+  loginWithFacebook,
 };

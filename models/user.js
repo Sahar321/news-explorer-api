@@ -16,9 +16,16 @@ const userSchema = mongoose.Schema({
     lowercase: true,
     trim: true,
   },
+  needsPassword: {
+    type: Boolean,
+    default: true,
+  },
+
   password: {
     type: String,
-    required: true,
+    required: function () {
+      return this.needsPassword;
+    },
     select: false,
   },
   name: {
@@ -78,11 +85,17 @@ const userSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  registerType: {
+    type: String,
+    enum: ['email', 'facebook', 'google'],
+    default: 'email',
+  },
 });
 
 userSchema.statics.findUserByCredentials = function findUserByCredentials(
   email,
-  password ) {
+  password
+) {
   return this.findOne({ email })
     .select('password')
     .then((user) => {
@@ -90,7 +103,10 @@ userSchema.statics.findUserByCredentials = function findUserByCredentials(
         // user not found:  not given the real reason to user for security purpose
         throw new UnauthorizedError('The username or password is incorrect');
       }
-
+      if (user.needsPassword) {
+        // user found but not given the real reason to user for security purpose
+        throw new UnauthorizedError('The username or password is incorrect');
+      }
       return bycript.compare(password, user.password).then((matched) => {
         if (!matched) {
           throw new UnauthorizedError('The username or password is incorrect');
@@ -100,13 +116,36 @@ userSchema.statics.findUserByCredentials = function findUserByCredentials(
     });
 };
 
-userSchema.statics.emailAuth0 = function emailAuth0(email) {
-  return this.findOne({ email }).then((user) => {
+//findOrCreateUserByEmail
+userSchema.statics.emailAuth0 = async function emailAuth0(
+  { email, name },
+  registerType
+) {
+  try {
+    let user = await this.findOne({ email }).lean();
+
     if (!user) {
-      // user not found:  not given the real reason to user for security purpose
-      throw new UnauthorizedError('The username or password is incorrect');
+      // If user is not found, create a new user
+      try {
+        user = await this.create({
+          email,
+          name,
+          registerType,
+          needsPassword: false,
+        });
+      } catch (createErr) {
+        // Log error and rethrow to ensure the outer catch block handles it
+        console.error('Error creating user:', createErr);
+        throw createErr;
+      }
     }
+
     return user;
-  });
+  } catch (err) {
+    console.error('Error in emailAuth0:', err);
+    // Consider re-throwing the error or handling it as per your application's requirements
+    throw err; // Uncomment if you want to propagate the error further
+  }
 };
+
 module.exports = mongoose.model('user', userSchema);

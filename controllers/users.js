@@ -18,14 +18,53 @@ async function verify(req) {
   const payload = ticket.getPayload();
   return payload;
 }
+
+function generateJwtToken(user) {
+  const jwtToken = jwt.sign({ _id: user._id }, JWT_SECRET, {
+    expiresIn: '7d',
+  });
+
+  return jwtToken;
+}
+
+async function loginWithFacebook(req, res, next) {
+  const userAccessToken = req.body.accessToken;
+
+  if (!userAccessToken) {
+    next(new Error('Invalid facebook token'));
+  }
+
+  const fbGraphAPIUrl = `https://graph.facebook.com/v17.0/me?fields=id,name,email,picture.width(320).height(320)&access_token=${userAccessToken}`;
+
+  try {
+    const { data } = await axios.get(fbGraphAPIUrl);
+
+    const dataForAuth = {
+      email: data.email,
+      name: data.name,
+    };
+    User.emailAuth0(dataForAuth, 'facebook')
+      .then((user) => {
+        return res.send({ token: generateJwtToken(user) });
+      })
+      .catch((err) => {
+        console.log(err);
+        next(err);
+      });
+  } catch (error) {
+    next('Error fetching facebook user info');
+  }
+}
 async function loginWithGoogle(req, res, next) {
   const data = await verify(req);
-  User.emailAuth0(data.email)
+
+  const dataForAuth = {
+    email: data.email,
+    name: data.name,
+  };
+  User.emailAuth0(dataForAuth, 'google')
     .then((user) => {
-      const jwtToken = jwt.sign({ _id: user._id }, JWT_SECRET, {
-        expiresIn: '7d',
-      });
-      return res.send({ token: jwtToken });
+      return res.send({ token: generateJwtToken(user) });
     })
     .catch((err) => next(err));
 }
@@ -34,10 +73,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
-      const jwtToken = jwt.sign({ _id: user._id }, JWT_SECRET, {
-        expiresIn: '7d',
-      });
-      return res.send({ token: jwtToken });
+      return res.send({ token: generateJwtToken(user) });
     })
     .catch((err) => next(err));
 };
@@ -107,33 +143,6 @@ const getUserInfo = (req, res, next) => {
     })
     .catch((err) => next(err));
 };
-
-async function loginWithFacebook(req, res, next) {
-  const userAccessToken = req.body.accessToken;
-
-  if (!userAccessToken) {
-    next(new Error('Invalid facebook token'));
-  }
-
-  const fbGraphAPIUrl = `https://graph.facebook.com/v17.0/me?fields=id,name,email,picture.width(320).height(320)&access_token=${userAccessToken}`;
-
-  try {
-    const { data } = await axios.get(fbGraphAPIUrl);
-    if (!data || data.error) {
-      throw new Error('Invalid token');
-    }
-    User.emailAuth0(data.email)
-      .then((user) => {
-        const jwtToken = jwt.sign({ _id: user._id }, JWT_SECRET, {
-          expiresIn: '7d',
-        });
-        return res.send({ token: jwtToken });
-      })
-      .catch((err) => next(err));
-  } catch (error) {
-    next('Error fetching facebook user info');
-  }
-}
 
 module.exports = {
   registerNewUser,

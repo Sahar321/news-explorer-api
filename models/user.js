@@ -26,7 +26,6 @@ const userSchema = mongoose.Schema({
     required: function () {
       return this.needsPassword;
     },
-    select: false,
   },
   name: {
     type: String,
@@ -97,21 +96,25 @@ userSchema.statics.findUserByCredentials = function findUserByCredentials(
   password
 ) {
   return this.findOne({ email })
-    .select('password')
+    .lean()
     .then((user) => {
       if (!user) {
         // user not found:  not given the real reason to user for security purpose
         throw new UnauthorizedError('The username or password is incorrect');
       }
-      if (user.needsPassword) {
+      if (!user.needsPassword) {
         // user found but not given the real reason to user for security purpose
-        throw new UnauthorizedError('The username or password is incorrect');
+        throw new UnauthorizedError(
+          '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++you was register with social media login, right now you can not login with email and password'
+        );
+        //throw new UnauthorizedError('The username or password is incorrect');
       }
       return bycript.compare(password, user.password).then((matched) => {
         if (!matched) {
           throw new UnauthorizedError('The username or password is incorrect');
         }
-        return user;
+
+        return user._id;
       });
     });
 };

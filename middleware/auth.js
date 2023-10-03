@@ -1,3 +1,4 @@
+/*eslint-disable*/
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('../constant/errors/UnauthorizedError');
 const { developmentJwtSecret } = require('../constant/config');
@@ -18,7 +19,10 @@ const authorized = (req, res, next) => {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
     // otherwise, return an error
-    throw new UnauthorizedError('invalid token');
+    throw new UnauthorizedError(
+      'Token is invalid or expired. Please try signing in again.',
+      true
+    );
   }
 
   /* Save payload to request. This makes the payload available
@@ -50,7 +54,10 @@ const allUsers = (req, res, next) => {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
     // otherwise, return an error
-    throw new UnauthorizedError('invalid token');
+    throw new UnauthorizedError(
+      'Token is invalid or expired. Please try signing in again.',
+      true
+    );
   }
 
   /* Save payload to request. This makes the payload available

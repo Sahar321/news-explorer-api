@@ -7,6 +7,7 @@ const { developmentJwtSecret } = require('../constant/config');
 const ConflictError = require('../constant/errors/ConflictError');
 const NotFoundError = require('../constant/errors/NotFoundError');
 const axios = require('axios');
+const user = require('../models/user');
 const { JWT_SECRET = developmentJwtSecret } = process.env;
 
 async function verify(req) {
@@ -135,11 +136,16 @@ const updateProfile = (req, res, next) => {
 
 const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
+    .lean()
     .orFail(() => {
       throw new NotFoundError('User not exist');
     })
     .then((user) => {
-      res.send(user);
+      // remove props
+      const { password, updatedAt, needsPassword, createdAt, ...restProps } =
+        user;
+
+      res.send(restProps);
     })
     .catch((err) => next(err));
 };

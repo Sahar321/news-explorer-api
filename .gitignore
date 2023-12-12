@@ -7,3 +7,4 @@ prctiom.txt
 *.log
 .env
 TODO.txt
+.vscode/launch.json

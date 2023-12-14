@@ -29,7 +29,11 @@ const fetchNews = async (q) => {
 };
 
 const enrichSourceArticles = (enrichedArticles, sourceArticle, keyword) => {
-  const enrichedMap = new Map(enrichedArticles.map((ea) => [ea.link, ea]));
+  const enrichedMap = new Map(
+    enrichedArticles.map((ea) => {
+      return [ea.link, ea];
+    })
+  );
 
   const processSourceArticle = (article) => ({
     title: article.title,

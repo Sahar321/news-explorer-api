@@ -1,4 +1,5 @@
 /* eslint-disable*/
+require('dotenv').config();
 const fetch = require('cross-fetch');
 const Article = require('../models/article');
 const mongoose = require('mongoose');
@@ -7,58 +8,65 @@ const Reaction = require('../models/reaction');
 const user = require('../models/user');
 const fs = require('fs');
 const moment = require('moment');
+const handleMainError = require('../middleware/handleMainError');
 function removeHtmlTagsWithRegex(input) {
+  if (!input) return input;
   return input.replace(/<\/?[^>]+(>|$)/g, ' ');
 }
 const fetchNews = async (q) => {
   try {
-    const pageSize = 100;
-    const apiKey = '5dac586067ad4ee7b2797a379e910521'; // todo: process.env.NEWS_API_KEY;
-    const baseUrl = 'https://newsapi.org/v2/everything';
-    const response = await fetch(
-      `${baseUrl}?q=${q}&apiKey=${apiKey}&pageSize=${pageSize}&sortBy=popularity`
-    );
+    const baseUrl = 'https://newsApi.org/v2/top-headlines';
+    const params = {
+      apiKey: process.env.NEWS_API_KEY || '5dac586067ad4ee7b2797a379e910521',
+      country: 'us',
+      q: q,
+    };
+    const urlParams = new URLSearchParams(params).toString();
+    const response = await fetch(`${baseUrl}?${urlParams}`);
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch news articles: ${response.status} ${response.statusText}`
+        `fetch News failed from newsApi.org is failed:${response.status} ${response.statusText}`
       );
     }
     return response.json();
-  } catch (err) {}
+  } catch (response) {
+    throw new Error(response);
+  }
 };
 
 const enrichSourceArticles = (enrichedArticles, sourceArticle, keyword) => {
-  const enrichedMap = new Map(
-    enrichedArticles.map((ea) => {
-      return [ea.link, ea];
-    })
-  );
+  const enrichedMap = new Map(enrichedArticles.map((ea) => [ea.url, ea]));
 
-  const processSourceArticle = (article) => ({
-    title: article.title,
-    date: moment(article.publishedAt).format('HH:mm D/M/YY'),
-    source: article.source.name,
-    keyword: keyword,
-    link: article.url,
-    image: article.urlToImage,
-    text: removeHtmlTagsWithRegex(article.description),
+  const processSourceArticle = ({
+    title,
+    publishedAt,
+    source,
+    url,
+    urlToImage,
+    description,
+    text,
+  }) => ({
+    title,
+    date: moment(publishedAt).format('HH:mm D/M/YY'),
+    source: source.name,
+    keyword,
+    link: url,
+    image: urlToImage,
+    text: removeHtmlTagsWithRegex(description),
   });
 
-  return sourceArticle.map((article) => {
+  const processedArticles = sourceArticle.map((article) => {
     const enrichedArticle = enrichedMap.get(article.url);
-    if (enrichedArticle) {
-      return enrichedArticle;
-    }
-
-    return processSourceArticle(article);
+    return enrichedArticle || processSourceArticle(article);
   });
+
+  return processedArticles;
 };
 
 const combineNewsSources = async (req, res, next) => {
   try {
     const { q } = req.query;
-    // messure time:
 
     const newsData = await fetchNews(q);
 

@@ -1,3 +1,4 @@
+/* eslint-disable */
 const router = require('express').Router();
 const users = require('./users');
 const articles = require('./articles');
@@ -19,6 +20,8 @@ router.all('/articles*', authorized, articles);
 router.all('/news*', allUsers, news);
 router.all('/comment*', authorized, comment);
 router.all('/profile*', authorized, profile);
+
+
 
 router.get('/crash-test', () => {
   setTimeout(() => {

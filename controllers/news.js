@@ -29,7 +29,15 @@ const fetchNews = async (q) => {
         `fetch News failed from newsApi.org is failed:${response.status} ${response.statusText}`
       );
     }
-    return response.json();
+
+    const jsonResponse = await response.json();
+
+    const filteredArticles = jsonResponse.articles.filter(
+      (article) => article.title !== '[Removed]'
+    );
+    jsonResponse.articles = filteredArticles;
+
+    return jsonResponse;
   } catch (response) {
     throw new Error(response);
   }
@@ -82,80 +90,6 @@ const combineNewsSources = async (req, res, next) => {
       status: 'ok',
       totalResults: newsData.totalResults,
     });
-
-    /*     if (!ownerId) {
-      res.send({
-        articles: tes,
-        status: 'ok',
-        totalResults: newsData.totalResults,
-      });
-    } */
-    /*     const newItem = newsData.articles.map((article) => {
-      const newArticle = {
-        keyword: q,
-        isBookmarked: false,
-        comments: [],
-        reaction: [],
-        title: article.title,
-        date: moment(article.publishedAt).format('HH:mm D/M/YY'),
-        source: article.source.name,
-        link: article.url,
-        image: article.urlToImage,
-        description: removeHtmlTagsWithRegex(article.description),
-      };
-      return newArticle;
-    });
-
-
-    const articles = await Article.find({});
-    const comments = await Comment.find({});
-    const reactions = await Reaction.find({});
-
-    const newArray = newsData.articles.map(async (article) => {
-      const reaction = reactions.filter((item) => item.link === article.url);
-      const comment = comments.filter((item) => item.link === article.url);
-      const isBookmarked = articles.some((item) => item.link === article.url);
-      const newArticle = {
-        keyword: q,
-        isBookmarked: isBookmarked,
-        comments: [],
-        reaction: [],
-        title: article.title,
-        date: moment(article.publishedAt).format('HH:mm D/M/YY'),
-        source: article.source.name,
-        link: article.url,
-        image: article.urlToImage,
-        description: removeHtmlTagsWithRegex(article.description),
-      };
-
-      if (reaction.length > 0) {
-        newArticle.reaction = reaction.map(
-          ({ reactionId, date, link, owner }) => {
-            const isOwner = ownerId === owner.toString();
-            return { reactionId, date, link, isOwner: isOwner };
-          }
-        );
-      }
-
-      if (comment.length > 0) {
-        newArticle.comments = comment.map(
-          async ({ text, date, link, rating, owner }) => {
-            const { name, avatar } = await user.findById(owner);
-            const isOwner = ownerId === owner.toString();
-            return { name, avatar, text, date, link, rating, owner: isOwner };
-          }
-        );
-      }
-
-      return newArticle;
-    });
-    const result = await newArray;
-    console.log(result);
-    res.send({
-      articles: result,
-      status: 'ok',
-      totalResults: newsData.totalResults,
-    }); */
   } catch (err) {
     next(err);
   }

@@ -34,7 +34,7 @@ app.use(handleMainError);
 // database
 mongoose.connect(DATABASE_ADDRESS);
 
-const generateFakeData = require('./testing/generateFakeData');
+/* const generateFakeData = require('./testing/generateFakeData');
 
 const zax = async () => {
   let test;
@@ -46,6 +46,8 @@ const zax = async () => {
   }
   return test;
 };
-//zax();
+//zax(); */
 
-app.listen(PORT);
+app.listen(PORT, () => {
+  console.log('\x1b[32m', `App listening on port ${PORT}`);
+});

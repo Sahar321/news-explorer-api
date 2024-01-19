@@ -105,7 +105,7 @@ userSchema.statics.findUserByCredentials = function findUserByCredentials(
       if (!user.needsPassword) {
         // user found but not given the real reason to user for security purpose
         throw new UnauthorizedError(
-          '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++you was register with social media login, right now you can not login with email and password'
+          'you was register with social media login, right now you can not login with email and password'
         );
         //throw new UnauthorizedError('The username or password is incorrect');
       }
